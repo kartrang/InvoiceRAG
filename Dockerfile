@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY . /app
 
 EXPOSE 8501
-CMD ["streamlit", "run", "rag_voice.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
+CMD ["streamlit", "run", "invoice_vector_storage.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
 
 EXPOSE 8501
 
@@ -27,4 +27,5 @@ EXPOSE 8501
 
 ENV STREAMLIT_SERVER_PORT=8501
 ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
+
 
