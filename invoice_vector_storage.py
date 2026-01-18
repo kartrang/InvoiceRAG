@@ -159,3 +159,5 @@ if question and all([qdrant_url, qdrant_api_key, openai_api_key, collection_name
 			st.info("No relevant invoices found to answer your question.")
 	except Exception as e:
 		st.warning(f"Could not answer question: {e}")
+
+
