@@ -2,7 +2,7 @@
 set -e
 
 # Pull the Docker image from Docker Hub
-echo
+docker pull kartrang/devopsfullcycle-app:latest .
 
 # Run the Docker image as a container
-echo
+docker run -d -p 8501:8501 kartrang/devopsfullcycle-app 
