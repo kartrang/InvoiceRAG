@@ -2,12 +2,16 @@
 set -euo pipefail
 set -x
 
-# Stop the running container (if any)
+# Stop and remove the running container (if any)
 container_name="my_container" # Replace with your container name
 
-if docker ps | grep -q "$container_name"; then
-    docker stop "$container_name"
-    echo "Stopped container: $container_name"
+# Get the container ID
+container_id=$(docker ps -q -f name="$container_name")
+
+if [ -n "$container_id" ]; then
+    docker stop "$container_id"
+    docker rm "$container_id"
+    echo "Stopped and removed container: $container_name (ID: $container_id)"
 else
-    echo "No running container to stop for: $container_name"
+    echo "No running container to stop or remove for: $container_name"
 fi
