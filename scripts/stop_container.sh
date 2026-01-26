@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # Exit on any failure
+set -e
 
-# Get the IDs of all running containers and stop them
+# Get IDs of all running containers and stop them
 docker ps -q | xargs docker rm -f
