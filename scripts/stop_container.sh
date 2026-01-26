@@ -2,7 +2,7 @@
 set -e  # Stop the script on any command failure
 
 # Function to handle errors gracefully
-function error_exit {
+error_exit() {
   echo "Error: $1"
   exit 1
 }
