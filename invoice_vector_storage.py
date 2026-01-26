@@ -23,9 +23,6 @@ today = datetime.date.today()
 current_date = today.strftime("%B %d, %Y")
 current_day = today.strftime("%A")
 st.markdown(f"<div style='text-align:right; color:gray; font-size:0.9em;'>Date: {current_date} ({current_day})</div>", unsafe_allow_html=True)
-# Display the selected day below the date (if entered)
-if invoice_day:
-	st.markdown(f"<div style='text-align:right; color:gray; font-size:0.9em;'>Selected Day: {invoice_day}</div>", unsafe_allow_html=True)
 
 st.sidebar.markdown("<div class='sidebar-title'>⚙️ Qdrant Configuration</div>", unsafe_allow_html=True)
 qdrant_url = st.sidebar.text_input("Qdrant URL")
@@ -40,6 +37,10 @@ account_number = st.text_input("Account Number")
 invoice_date = st.date_input("Invoice Date")
 invoice_day = st.text_input("Day (e.g. Monday)")
 invoice_file = st.file_uploader("Upload Invoice (PDF only)", type=["pdf"])
+
+# Display the selected day below the date (if entered)
+if invoice_day:
+	st.markdown(f"<div style='text-align:right; color:gray; font-size:0.9em;'>Selected Day: {invoice_day}</div>", unsafe_allow_html=True)
 
 def extract_text_from_pdf(pdf_file):
 	from PyPDF2 import PdfReader
