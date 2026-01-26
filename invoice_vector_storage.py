@@ -1,3 +1,6 @@
+"""
+Date stamp: 2026-01-26
+"""
 import streamlit as st
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
@@ -5,12 +8,18 @@ import uuid
 import os
 import requests
 
+import datetime
+
 st.set_page_config(page_title="Invoice Vector Storage", layout="wide")
 
 css_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "styles.css")
 if os.path.exists(css_path):
 	with open(css_path) as f:
 		st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# Display the current date at the top of the UI
+current_date = datetime.date.today().strftime("%B %d, %Y")
+st.markdown(f"<div style='text-align:right; color:gray; font-size:0.9em;'>Date: {current_date}</div>", unsafe_allow_html=True)
 
 st.sidebar.markdown("<div class='sidebar-title'>⚙️ Qdrant Configuration</div>", unsafe_allow_html=True)
 qdrant_url = st.sidebar.text_input("Qdrant URL")
@@ -159,5 +168,3 @@ if question and all([qdrant_url, qdrant_api_key, openai_api_key, collection_name
 			st.info("No relevant invoices found to answer your question.")
 	except Exception as e:
 		st.warning(f"Could not answer question: {e}")
-
-
