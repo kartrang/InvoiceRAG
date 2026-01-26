@@ -17,9 +17,15 @@ if os.path.exists(css_path):
 	with open(css_path) as f:
 		st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Display the current date at the top of the UI
-current_date = datetime.date.today().strftime("%B %d, %Y")
-st.markdown(f"<div style='text-align:right; color:gray; font-size:0.9em;'>Date: {current_date}</div>", unsafe_allow_html=True)
+
+# Display the current date and day at the top of the UI
+today = datetime.date.today()
+current_date = today.strftime("%B %d, %Y")
+current_day = today.strftime("%A")
+st.markdown(f"<div style='text-align:right; color:gray; font-size:0.9em;'>Date: {current_date} ({current_day})</div>", unsafe_allow_html=True)
+# Display the selected day below the date (if entered)
+if invoice_day:
+	st.markdown(f"<div style='text-align:right; color:gray; font-size:0.9em;'>Selected Day: {invoice_day}</div>", unsafe_allow_html=True)
 
 st.sidebar.markdown("<div class='sidebar-title'>⚙️ Qdrant Configuration</div>", unsafe_allow_html=True)
 qdrant_url = st.sidebar.text_input("Qdrant URL")
@@ -32,6 +38,7 @@ st.markdown("<h1>📄 Invoice Upload & Vector Storage</h1>", unsafe_allow_html=T
 account_name = st.text_input("Account Name")
 account_number = st.text_input("Account Number")
 invoice_date = st.date_input("Invoice Date")
+invoice_day = st.text_input("Day (e.g. Monday)")
 invoice_file = st.file_uploader("Upload Invoice (PDF only)", type=["pdf"])
 
 def extract_text_from_pdf(pdf_file):
@@ -58,7 +65,7 @@ def get_embedding(text, openai_api_key):
 	return embedding
 
 if st.button("🚀 Store Invoice in Qdrant"):
-	if not all([account_name, account_number, invoice_date, invoice_file, qdrant_url, qdrant_api_key, openai_api_key]):
+	if not all([account_name, account_number, invoice_date, invoice_day, invoice_file, qdrant_url, qdrant_api_key, openai_api_key]):
 		st.error("All fields and credentials are required.")
 	else:
 		client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
@@ -77,6 +84,7 @@ if st.button("🚀 Store Invoice in Qdrant"):
 				"account_name": account_name,
 				"account_number": account_number,
 				"invoice_date": invoice_date.isoformat(),
+				"invoice_day": invoice_day,
 				"file_name": invoice_file.name,
 				"content": text[:3000]
 			}
@@ -106,20 +114,24 @@ if all([qdrant_url, qdrant_api_key, collection_name]):
 				ids.append(p.id)
 			df = pd.DataFrame(data)
 			# Render table headers
-			header_cols = st.columns([2,2,2,2,1])
+			header_cols = st.columns([2,2,2,2,2,1])
 			header_cols[0].markdown("**File Name**")
 			header_cols[1].markdown("**Account Name**")
 			header_cols[2].markdown("**Account Number**")
 			header_cols[3].markdown("**Invoice Date**")
-			header_cols[4].markdown("**Action**")
+			header_cols[4].markdown("**Day**")
+			header_cols[5].markdown("**Action**")
+			# Add Day to DataFrame
+			df["Day"] = [payload.get("invoice_day", "") for payload in points]
 			# Render each row with a delete button
 			for i, row in df.iterrows():
-				cols = st.columns([2,2,2,2,1])
+				cols = st.columns([2,2,2,2,2,1])
 				cols[0].write(row["File Name"])
 				cols[1].write(row["Account Name"])
 				cols[2].write(row["Account Number"])
 				cols[3].write(row["Invoice Date"])
-				if cols[4].button("Delete", key=f"delete_{ids[i]}"):
+				cols[4].write(row["Day"])
+				if cols[5].button("Delete", key=f"delete_{ids[i]}"):
 					try:
 						client.delete(collection_name=collection_name, points_selector={"points": [ids[i]]})
 						st.success(f"Deleted invoice: {row['File Name']}")
